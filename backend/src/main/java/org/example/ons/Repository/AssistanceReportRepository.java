@@ -26,6 +26,9 @@ public interface AssistanceReportRepository
 
     List<AssistanceReport> findAssistanceReportByKiosk(Kiosk kiosk);
 
+    List<AssistanceReport> findByPilgrim_Id(Integer pilgrimId);
+
+
     long countByKiosk(Kiosk kiosk);
 
     List<AssistanceReport> findAssistanceReportByAuthorizedStaff_IdAndStatus(
@@ -44,17 +47,16 @@ public interface AssistanceReportRepository
             Integer campaignId
     );
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-            SELECT report
-            FROM AssistanceReport report
-            WHERE report.reportId IN :reportIds
-            ORDER BY report.reportId
-            """)
+    @Query(value = """
+        SELECT report.*
+        FROM assistance_report report
+        WHERE report.report_id IN (:reportIds)
+        ORDER BY report.report_id
+        FOR UPDATE
+        """, nativeQuery = true)
     List<AssistanceReport> findReportsForUpdate(
             @Param("reportIds") Collection<Long> reportIds
     );
-
     List<AssistanceReport> findByCampaign_IdAndStatusInAndCreatedAtBefore(
             Integer campaignId,
             List<ReportStatus> statuses,
@@ -71,4 +73,14 @@ public interface AssistanceReportRepository
             Campaign campaign,
             ReportStatus status
     );
+
+    List<AssistanceReport> findByCampaign_Id(Integer campaignId);
+
+    List<AssistanceReport> findByStatusAndReminderSubmittedFalseAndCreatedAtLessThanEqual(
+            ReportStatus status,
+            LocalDateTime cutoff
+    );
+
+
+
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.ons.Model.User;
 import org.example.ons.Repository.AuthRepository;
 import org.example.ons.Repository.AuthorizedStaffRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -28,7 +29,7 @@ public class AdminService {
 
         admin.setName("System Admin");
         admin.setEmail("admin@ons.com");
-        admin.setPassword("12345678");
+        admin.setPassword(new BCryptPasswordEncoder().encode("12345678"));
         admin.setPhoneNumber("0500000000");
         admin.setRole("ADMIN");
         admin.setActive(true);

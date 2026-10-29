@@ -29,6 +29,9 @@ public class AssistanceReport {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean reminderSubmitted = false;
+
     private LocalDateTime pickupTime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

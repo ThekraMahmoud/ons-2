@@ -3,7 +3,16 @@ package org.example.ons.Repository;
 import org.example.ons.Model.ReportStatusHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReportStatusHistoryRepository extends JpaRepository<ReportStatusHistory, Long> {
+import java.util.List;
 
-    ReportStatusHistory findTopByReport_ReportIdOrderByChangedAtDesc(Long reportId);
+public interface ReportStatusHistoryRepository
+        extends JpaRepository<ReportStatusHistory, Integer> {
+
+    ReportStatusHistory findTopByReport_ReportIdOrderByChangedAtDesc(
+            Long reportId
+    );
+
+    List<ReportStatusHistory> findByReport_ReportIdOrderByChangedAtDesc(
+            Long reportId
+    );
 }

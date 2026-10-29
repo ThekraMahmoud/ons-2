@@ -24,6 +24,10 @@ public class AuthorizedStaff {
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
+    @ManyToOne
+    @JoinColumn(name = "supervisor_id")
+    private AuthorizedStaff supervisor;
+
     @OneToOne
     @MapsId
     @PrimaryKeyJoinColumn

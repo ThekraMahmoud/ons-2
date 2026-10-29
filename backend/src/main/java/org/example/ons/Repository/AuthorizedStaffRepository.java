@@ -14,4 +14,6 @@ public interface AuthorizedStaffRepository extends JpaRepository<AuthorizedStaff
     AuthorizedStaff findAuthorizedStaffById(Integer staffId);
 
     List<AuthorizedStaff> findAuthorizedStaffByCampaignAndStaffRole(Campaign campaign, AuthorizedStaffRole authorizedStaffRole);
+
+    List<AuthorizedStaff> findByCampaign_Id(Integer campaignId);
 }

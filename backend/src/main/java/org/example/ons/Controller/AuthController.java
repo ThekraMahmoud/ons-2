@@ -4,48 +4,76 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.ons.Api.ApiResponse;
 import org.example.ons.DTO.ChangePasswordDTO;
+import org.example.ons.Model.User;
 import org.example.ons.Service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
+
     @GetMapping("/get/all")
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.status(200).body(authService.getAllUsers());
+        return ResponseEntity.status(200)
+                .body(authService.getAllUsers());
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-        return ResponseEntity.status(200).body(authService.getUserById(id));
+    public ResponseEntity<?> getUserById(
+            @PathVariable Integer id) {
+
+        return ResponseEntity.status(200)
+                .body(authService.getUserById(id));
     }
 
     @PutMapping("/activate/{id}")
-    public ResponseEntity<?> activateUser(@PathVariable Integer id) {
+    public ResponseEntity<?> activateUser(
+            @PathVariable Integer id) {
+
         authService.activateUser(id);
+
         return ResponseEntity.status(200)
                 .body(new ApiResponse("User activated successfully"));
     }
 
     @PutMapping("/deactivate/{id}")
-    public ResponseEntity<?> deactivateUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deactivateUser(
+            @PathVariable Integer id) {
+
         authService.deactivateUser(id);
+
         return ResponseEntity.status(200)
                 .body(new ApiResponse("User deactivated successfully"));
     }
 
     @PostMapping("/change-password/{id}")
     public ResponseEntity<?> changePassword(
+            @AuthenticationPrincipal User user,
             @PathVariable Integer id,
-            @RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+            @Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
 
-        authService.changePassword(id, changePasswordDTO);
+        if (user == null
+                || !user.isActive()
+                || !user.getId().equals(id)) {
+
+            return ResponseEntity.status(403).body(
+                    new ApiResponse(
+                            "You can only change your own password"
+                    )
+            );
+        }
+
+        authService.changePassword(
+                user.getId(),
+                changePasswordDTO
+        );
 
         return ResponseEntity.status(200)
                 .body(new ApiResponse("Password changed successfully"));
     }
-
 }

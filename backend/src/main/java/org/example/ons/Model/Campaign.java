@@ -1,7 +1,9 @@
         package org.example.ons.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -18,21 +20,31 @@ import java.util.Set;
 @Check(constraints = "end_date >= start_date")
 public class Campaign {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+      @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer Id;
 
     @NotBlank(message = "Campaign name is required")
     @Size(max = 100, message = "Campaign name must not exceed 100 characters")
     @Column(nullable = false, length = 100)
     private String campaignName;
-
-    @Pattern(
-            regexp = "^\\+?[0-9]{8,15}$",
-            message = "Invalid contact number"
-    )
-    @Column(length = 16)
-    private String contactNumber;
+//
+//    @Pattern(
+//            regexp = "^\\+?[0-9]{8,15}$",
+//            message = "Invalid contact number"
+//    )
+//    @Column(length = 16)
+//    private String contactNumber;
+//
+//    @NotBlank(message = "Campaign email is required")
+//    @Email(message = "Campaign email must be valid")
+//    @Size(max = 254, message = "Campaign email must not exceed 254 characters")
+//    @Column(length = 254,nullable = false,unique = true)
+//    private String email;
+//
+//
+//    @JsonIgnore
+//    private String password;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -54,4 +66,9 @@ public class Campaign {
     @OneToMany(mappedBy = "campaign")
     @JsonIgnore
     private Set<Accommodation> accommodations;
+
+    @OneToOne
+    @MapsId
+    @PrimaryKeyJoinColumn
+    private User user;
 }

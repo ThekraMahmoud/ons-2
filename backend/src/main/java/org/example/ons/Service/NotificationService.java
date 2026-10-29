@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.ons.Api.ApiException;
 import org.example.ons.Model.AssistanceReport;
 import org.example.ons.Model.Campaign;
+import org.example.ons.Model.CampaignPayment;
 import org.example.ons.Model.Notification;
 import org.example.ons.Repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -313,5 +315,44 @@ public class NotificationService {
         );
 
         sendEmail(email, subject, message);
+    }
+    public void notifyPaymentSuccessful(CampaignPayment payment) {
+
+        String amount = BigDecimal.valueOf(payment.getAmount(), 2)
+                .toPlainString();
+
+        String paidAt = payment.getPaidAt().format(
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        );
+
+        String subject = "تأكيد سداد رسوم تسجيل الحملة — أُنس";
+
+        String message = """
+            %s،
+
+            تم استلام سداد رسوم تسجيل حملتكم بنجاح.
+
+            رقم الفاتورة: %s
+            المبلغ المدفوع: %s %s
+            وقت تأكيد السداد: %s
+
+            رابط الفاتورة:
+            %s
+
+            شكرًا لانضمامكم إلى نظام أُنس.
+            """.formatted(
+                payment.getCampaign().getUser().getName(),
+                payment.getInvoiceId(),
+                amount,
+                payment.getCurrency(),
+                paidAt,
+                payment.getPaymentUrl()
+        );
+
+        sendEmail(
+                payment.getCampaign().getUser().getEmail(),
+                subject,
+                message
+        );
     }
 }

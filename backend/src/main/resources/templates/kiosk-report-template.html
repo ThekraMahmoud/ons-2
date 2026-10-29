@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONS | Kiosk Operations Report</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#eef2ef;
+             font-family:Arial,Helvetica,sans-serif; color:#253d35;">
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"
+       style="background-color:#eef2ef; padding:32px 12px;">
+<tr>
+<td align="center">
+
+<table role="presentation" width="680" cellspacing="0" cellpadding="0"
+       style="width:100%; max-width:680px; background:#ffffff;
+              border:1px solid #dce5df;">
+
+    <!-- HEADER -->
+    <tr>
+        <td style="background:#173f35; padding:32px 36px 28px;">
+
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+                <td>
+                    <div style="font-size:12px; letter-spacing:4px;
+                                color:#c9d9cf; font-weight:bold;">
+                        ONS
+                    </div>
+
+                    <div style="font-size:30px; font-weight:bold;
+                                color:#ffffff; margin-top:12px;">
+                        Operations Report
+                    </div>
+
+                    <div style="font-size:14px; line-height:1.8;
+                                color:#dce8e0; margin-top:8px;">
+                        Kiosk Performance &amp; Assistance Overview
+                    </div>
+                </td>
+
+                <td align="right" valign="top">
+                    <div style="display:inline-block; border:1px solid #6c9382;
+                                padding:9px 13px; color:#ffffff;
+                                font-size:11px; letter-spacing:1px;">
+                        OFFICIAL REPORT
+                    </div>
+                </td>
+            </tr>
+            </table>
+
+            <div style="height:1px; background:#496c5e; margin-top:25px;"></div>
+
+            <div style="font-size:12px; color:#dce8e0; margin-top:15px;">
+                AUTOMATED SYSTEM SUMMARY
+            </div>
+
+        </td>
+    </tr>
+
+    <!-- INTRODUCTION -->
+    <tr>
+        <td style="padding:30px 36px 12px;">
+
+            <div style="font-size:12px; letter-spacing:2px;
+                        color:#668575; font-weight:bold;">
+                MANAGEMENT BRIEF
+            </div>
+
+            <h2 style="font-size:21px; line-height:1.5;
+                       margin:10px 0; color:#173f35;">
+                Kiosk Network Summary
+            </h2>
+
+            <p style="font-size:14px; line-height:1.9; color:#64736b; margin:0;">
+                This report provides an overview of kiosk availability,
+                assistance requests, and operational distribution across
+                Makkah and Madinah.
+            </p>
+
+        </td>
+    </tr>
+
+    <!-- KEY METRICS -->
+    <tr>
+        <td style="padding:16px 36px 12px;">
+
+            <table role="presentation" width="100%" cellspacing="0"
+                   cellpadding="0">
+            <tr>
+                <td width="50%" style="padding:7px;">
+                    <div style="border:1px solid #dce7df;
+                                background:#f7faf8; padding:20px;">
+                        <div style="font-size:11px; color:#64786c;
+                                    letter-spacing:1px;">
+                            TOTAL KIOSKS
+                        </div>
+                        <div style="font-size:34px; font-weight:bold;
+                                    color:#173f35; margin-top:10px;">
+                            {{TOTAL}}
+                        </div>
+                        <div style="font-size:12px; color:#77877d;
+                                    margin-top:5px;">
+                            Registered devices
+                        </div>
+                    </div>
+                </td>
+
+                <td width="50%" style="padding:7px;">
+                    <div style="border:1px solid #dce7df;
+                                background:#f7faf8; padding:20px;">
+                        <div style="font-size:11px; color:#64786c;
+                                    letter-spacing:1px;">
+                            ASSISTANCE REQUESTS
+                        </div>
+                        <div style="font-size:34px; font-weight:bold;
+                                    color:#173f35; margin-top:10px;">
+                            {{REPORTS}}
+                        </div>
+                        <div style="font-size:12px; color:#77877d;
+                                    margin-top:5px;">
+                            Total recorded requests
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </table>
+
+        </td>
+    </tr>
+
+    <!-- STATUS -->
+    <tr>
+        <td style="padding:24px 36px 12px;">
+
+            <h3 style="font-size:17px; color:#173f35; margin:0 0 15px;">
+                01 &nbsp; Device Availability
+            </h3>
+
+            <table role="presentation" width="100%" cellspacing="0"
+                   cellpadding="0" style="border-collapse:collapse;">
+
+                <tr>
+                    <td style="padding:14px 12px; border-bottom:1px solid #e5ebe6;">
+                        <span style="color:#27845c; font-size:13px;">
+                            ● &nbsp; Active
+                        </span>
+                    </td>
+                    <td align="right" style="padding:14px 12px;
+                        border-bottom:1px solid #e5ebe6;
+                        font-weight:bold; color:#173f35;">
+                        {{ACTIVE}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:14px 12px; border-bottom:1px solid #e5ebe6;">
+                        <span style="color:#bd8b2f; font-size:13px;">
+                            ● &nbsp; Inactive
+                        </span>
+                    </td>
+                    <td align="right" style="padding:14px 12px;
+                        border-bottom:1px solid #e5ebe6;
+                        font-weight:bold; color:#173f35;">
+                        {{INACTIVE}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:14px 12px; border-bottom:1px solid #e5ebe6;">
+                        <span style="color:#b65d50; font-size:13px;">
+                            ● &nbsp; Maintenance
+                        </span>
+                    </td>
+                    <td align="right" style="padding:14px 12px;
+                        border-bottom:1px solid #e5ebe6;
+                        font-weight:bold; color:#173f35;">
+                        {{MAINTENANCE}}
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+
+    <!-- REQUESTS BY STATUS -->
+    <tr>
+        <td style="padding:25px 36px 12px;">
+
+            <h3 style="font-size:17px; color:#173f35; margin:0 0 15px;">
+                02 &nbsp; Assistance by Device Status
+            </h3>
+
+            <table role="presentation" width="100%" cellspacing="0"
+                   cellpadding="0" style="border-collapse:collapse;">
+
+                <tr>
+                    <td style="padding:12px; background:#f5f8f6;
+                               border-bottom:3px solid #ffffff;
+                               font-size:13px;">
+                        Active kiosks
+                    </td>
+                    <td align="right" style="padding:12px; background:#f5f8f6;
+                               border-bottom:3px solid #ffffff;
+                               font-size:14px; font-weight:bold;">
+                        {{ACTIVE_REPORTS}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:12px; background:#f5f8f6;
+                               border-bottom:3px solid #ffffff;
+                               font-size:13px;">
+                        Inactive kiosks
+                    </td>
+                    <td align="right" style="padding:12px; background:#f5f8f6;
+                               border-bottom:3px solid #ffffff;
+                               font-size:14px; font-weight:bold;">
+                        {{INACTIVE_REPORTS}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:12px; background:#f5f8f6;
+                               font-size:13px;">
+                        Kiosks under maintenance
+                    </td>
+                    <td align="right" style="padding:12px; background:#f5f8f6;
+                               font-size:14px; font-weight:bold;">
+                        {{MAINTENANCE_REPORTS}}
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+
+    <!-- CITY REPORTS -->
+    <tr>
+        <td style="padding:25px 36px 12px;">
+
+            <h3 style="font-size:17px; color:#173f35; margin:0 0 16px;">
+                03 &nbsp; Regional Overview
+            </h3>
+
+            <table role="presentation" width="100%" cellspacing="0"
+                   cellpadding="0">
+            <tr>
+                <td width="50%" valign="top" style="padding:0 6px 0 0;">
+                    <div style="border:1px solid #dce7df; padding:18px;">
+                        <div style="font-size:11px; letter-spacing:1px;
+                                    color:#668575; font-weight:bold;">
+                            MAKKAH
+                        </div>
+
+                        <div style="font-size:25px; font-weight:bold;
+                                    color:#173f35; margin:12px 0;">
+                            {{MAKKAH_TOTAL}}
+                        </div>
+
+                        <div style="font-size:12px; color:#77877d;">
+                            Total kiosks
+                        </div>
+
+                        <div style="height:1px; background:#e5ebe6;
+                                    margin:15px 0;"></div>
+
+                        <div style="font-size:13px; line-height:2.1;
+                                    color:#52675a;">
+                            Active: <b>{{MAKKAH_ACTIVE}}</b><br>
+                            Inactive: <b>{{MAKKAH_INACTIVE}}</b><br>
+                            Maintenance: <b>{{MAKKAH_MAINTENANCE}}</b><br>
+                            Assistance requests: <b>{{MAKKAH_REPORTS}}</b>
+                        </div>
+                    </div>
+                </td>
+
+                <td width="50%" valign="top" style="padding:0 0 0 6px;">
+                    <div style="border:1px solid #dce7df; padding:18px;">
+                        <div style="font-size:11px; letter-spacing:1px;
+                                    color:#668575; font-weight:bold;">
+                            MADINAH
+                        </div>
+
+                        <div style="font-size:25px; font-weight:bold;
+                                    color:#173f35; margin:12px 0;">
+                            {{MADINAH_TOTAL}}
+                        </div>
+
+                        <div style="font-size:12px; color:#77877d;">
+                            Total kiosks
+                        </div>
+
+                        <div style="height:1px; background:#e5ebe6;
+                                    margin:15px 0;"></div>
+
+                        <div style="font-size:13px; line-height:2.1;
+                                    color:#52675a;">
+                            Active: <b>{{MADINAH_ACTIVE}}</b><br>
+                            Inactive: <b>{{MADINAH_INACTIVE}}</b><br>
+                            Maintenance: <b>{{MADINAH_MAINTENANCE}}</b><br>
+                            Assistance requests: <b>{{MADINAH_REPORTS}}</b>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </table>
+
+        </td>
+    </tr>
+
+    <!-- MOST REQUESTED KIOSKS -->
+    <tr>
+        <td style="padding:28px 36px 32px;">
+
+            <h3 style="font-size:17px; color:#173f35; margin:0 0 8px;">
+                04 &nbsp; Most Requested Kiosks
+            </h3>
+
+            <p style="font-size:12px; line-height:1.8; color:#77877d;
+                      margin:0 0 16px;">
+                The five kiosks with the highest number of recorded
+                assistance requests.
+            </p>
+
+            <table role="presentation" width="100%" cellspacing="0"
+                   cellpadding="0"
+                   style="border-collapse:collapse; font-size:12px;">
+
+                <tr style="background:#173f35; color:#ffffff;">
+                    <th align="left" style="padding:12px 8px;">Code</th>
+                    <th align="left" style="padding:12px 8px;">Location</th>
+                    <th align="left" style="padding:12px 8px;">Status</th>
+                    <th align="right" style="padding:12px 8px;">Requests</th>
+                </tr>
+
+                {{TOP_KIOSKS}}
+
+            </table>
+
+            <div style="margin-top:28px; padding:18px 20px;
+                        background:#f4f7f4; border-left:4px solid #668575;">
+                <div style="font-size:13px; color:#173f35;
+                            font-weight:bold;">
+                    ONS | Operations &amp; Assistance
+                </div>
+                <div style="font-size:12px; line-height:1.8;
+                            color:#6d7e73; margin-top:6px;">
+                    This report was generated automatically by the ONS system.
+                    The figures reflect the data currently recorded in the system.
+                </div>
+            </div>
+
+        </td>
+    </tr>
+
+    <!-- FOOTER -->
+    <tr>
+        <td align="center" style="background:#173f35; padding:22px;">
+            <div style="font-size:14px; color:#ffffff;
+                        font-weight:bold; letter-spacing:3px;">
+                O N S
+            </div>
+            <div style="font-size:11px; color:#c9d9cf; margin-top:8px;">
+                A report built for better service and smoother operations.
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

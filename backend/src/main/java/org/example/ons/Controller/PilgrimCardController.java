@@ -1,57 +1,100 @@
-        package org.example.ons.Controller;
+package org.example.ons.Controller;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.ons.Api.ApiResponse;
 import org.example.ons.Model.PilgrimCard;
+import org.example.ons.Model.User;
 import org.example.ons.Service.PilgrimCardService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/pilgrim-cards")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PilgrimCardController {
 
     private final PilgrimCardService pilgrimCardService;
 
-    // Create Pilgrim Card
-    @PostMapping("/add/{pilgrimId}")
-    public ResponseEntity<?> createPilgrimCard(@PathVariable Integer pilgrimId, @Valid @RequestBody PilgrimCard pilgrimCard) {
+    @PostMapping("/add")
+    public ResponseEntity<?> createPilgrimCard(
+            @AuthenticationPrincipal User user,
+            @RequestParam Integer pilgrimId,
+            @Valid @RequestBody PilgrimCard pilgrimCard) {
 
-        pilgrimCardService.createPilgrimCard(pilgrimId,pilgrimCard);
+        pilgrimCardService.createPilgrimCard(
+                user,
+                pilgrimId,
+                pilgrimCard
+        );
 
-        return ResponseEntity.status(200).body(new ApiResponse("Pilgrim card created successfully"));
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "Pilgrim card created successfully"
+                )
+        );
     }
 
-    // Get All Pilgrim Cards
+    @GetMapping("/pilgrim/{pilgrimId}")
+    public ResponseEntity<?> getCardForPilgrim(
+            @AuthenticationPrincipal User user,
+            @PathVariable Integer pilgrimId) {
+        return ResponseEntity.ok(pilgrimCardService.getCardForPilgrim(user, pilgrimId));
+    }
+
     @GetMapping("/get")
-    public ResponseEntity<?> getAllPilgrimCards() {
+    public ResponseEntity<?> getAllPilgrimCards(
+            @AuthenticationPrincipal User user) {
 
-        return ResponseEntity.status(200).body(pilgrimCardService.getAllPilgrimCards());
+        return ResponseEntity.ok(
+                pilgrimCardService.getAllPilgrimCards(user)
+        );
     }
 
-    // Get Pilgrim Card By ID
-    @GetMapping("/get/{id}")
-    public ResponseEntity<?> getPilgrimCardById(@PathVariable Integer id) {
+    @GetMapping("/me")
+    public ResponseEntity<?> getPilgrimCardById(
+            @AuthenticationPrincipal User user,
+            @RequestParam Integer cardId) {
 
-        return ResponseEntity.status(200).body(pilgrimCardService.getPilgrimCardById(id));
+        return ResponseEntity.ok(
+                pilgrimCardService.getPilgrimCardById(
+                        user,
+                        cardId
+                )
+        );
     }
 
-    // Update Pilgrim Card
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updatePilgrimCard(@PathVariable Integer id, @Valid @RequestBody PilgrimCard pilgrimCard) {
+    @PutMapping("/update")
+    public ResponseEntity<?> updatePilgrimCard(
+            @AuthenticationPrincipal User user,
+            @RequestParam Integer cardId,
+            @Valid @RequestBody PilgrimCard pilgrimCard) {
 
-        pilgrimCardService.updatePilgrimCard(id, pilgrimCard);
+        pilgrimCardService.updatePilgrimCard(
+                user,
+                cardId,
+                pilgrimCard
+        );
 
-        return ResponseEntity.status(200).body(new ApiResponse("Pilgrim card updated successfully"));
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "Pilgrim card updated successfully"
+                )
+        );
     }
 
-    // Delete Pilgrim Card
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deletePilgrimCard(@PathVariable Integer id) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deletePilgrimCard(
+            @AuthenticationPrincipal User user,
+            @RequestParam Integer cardId) {
 
-        pilgrimCardService.deletePilgrimCard(id);
-        return ResponseEntity.status(200).body(new ApiResponse("Pilgrim card deleted successfully"));
+        pilgrimCardService.deletePilgrimCard(user, cardId);
+
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        "Pilgrim card deleted successfully"
+                )
+        );
     }
 }

@@ -9,8 +9,11 @@ import org.example.ons.Enum.AuthorizedStaffRole;
 import org.example.ons.Enum.ReportStatus;
 import org.example.ons.Model.*;
 import org.example.ons.Repository.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -25,40 +28,107 @@ public class AuthorizedStaffService {
     private final MapService mapService;
     private final NotificationService notificationService;
 
-    public void createStaff(AuthorizedStaffDTO dto,Integer campaignId) {
+    @Transactional
+    public void createStaff(
+            User actor,
+            AuthorizedStaffDTO dto,
+            Integer campaignId) {
 
-        AuthorizedStaff staff = new AuthorizedStaff();
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
+        }
+
+        if (!"ADMIN".equals(actor.getRole())
+                && !"CAMPAIGN_OWNER".equals(actor.getRole())) {
+            throw new AccessDeniedException(
+                    "Only admins and campaign owners can create supervisors"
+            );
+        }
+
+        Campaign campaign =
+                campaignRepository.findCampaignById(campaignId);
+
+        if (campaign == null) {
+            throw new ApiException("campaign not found");
+        }
+
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())
+                && (campaign.getUser() == null
+                || !actor.getId().equals(
+                campaign.getUser().getId()
+        ))) {
+            throw new AccessDeniedException(
+                    "You can only create supervisors for your own campaign"
+            );
+        }
 
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(
+                new BCryptPasswordEncoder().encode(dto.getPassword())
+        );
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setRole("AuthorizedStaff");
         user.setActive(dto.isActive());
 
+        User savedUser = authRepository.save(user);
 
-            Campaign campaign = campaignRepository.findCampaignById(campaignId);
+        AuthorizedStaff staff = new AuthorizedStaff();
+        staff.setStaffRole(AuthorizedStaffRole.SUPERVISOR);
+        staff.setCampaign(campaign);
+        staff.setUser(savedUser);
 
-            if (campaign == null) {
-                throw new ApiException("campaign not found");
-            }
-
-            staff.setStaffRole(AuthorizedStaffRole.SUPERVISOR);
-            staff.setCampaign(campaign);
-
-
-        authRepository.save(user);
-        staff.setUser(user);
         authorizedStaffRepository.save(staff);
     }
 
-    public List<AuthorizedStaff> getAllStaff() {
+    @Transactional(readOnly = true)
+    public List<AuthorizedStaff> getAllStaff(User actor) {
 
-        List<AuthorizedStaff> staffList = authorizedStaffRepository.findAll();
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
+        }
+
+        List<AuthorizedStaff> staffList;
+
+        if ("ADMIN".equals(actor.getRole())) {
+
+            staffList = authorizedStaffRepository.findAll();
+
+        } else if ("CAMPAIGN_OWNER".equals(actor.getRole())) {
+
+            Campaign campaign =
+                    campaignRepository.findCampaignById(actor.getId());
+
+            if (campaign == null
+                    || campaign.getUser() == null
+                    || !actor.getId().equals(
+                    campaign.getUser().getId()
+            )) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+            staffList = authorizedStaffRepository
+                    .findByCampaign_Id(campaign.getId());
+
+        } else {
+            throw new AccessDeniedException(
+                    "Only admins and campaign owners can access this endpoint"
+            );
+        }
 
         if (staffList.isEmpty()) {
-            throw new ApiException("there is no staff in the system");
+            throw new ApiException("there is no staff in the campaign or system");
         }
 
         return staffList;
@@ -72,10 +142,39 @@ public class AuthorizedStaffService {
         return staff;
     }
 
-    public void updateStaff(Integer id, EmployeeUpdateDTO dto) {
+    @Transactional
+    public void updateStaff(
+            User actor,
+            Integer id,
+            EmployeeUpdateDTO dto) {
+
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
+        }
+
+        if (!"ADMIN".equals(actor.getRole())
+                && !"CAMPAIGN_OWNER".equals(actor.getRole())) {
+            throw new AccessDeniedException(
+                    "Only admins and campaign owners can update staff"
+            );
+        }
 
         AuthorizedStaff staff = authorizedStaffRepository.findById(id)
                 .orElseThrow(() -> new ApiException("staff not found"));
+
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())
+                && (staff.getCampaign() == null
+                || staff.getCampaign().getUser() == null
+                || !actor.getId().equals(
+                staff.getCampaign().getUser().getId()))) {
+            throw new AccessDeniedException(
+                    "You can only update staff in your own campaign"
+            );
+        }
 
         User user = staff.getUser();
 
@@ -87,13 +186,41 @@ public class AuthorizedStaffService {
         authRepository.save(user);
     }
 
-    public void deleteStaff(Integer id) {
+    @Transactional
+    public void deleteStaff(User actor, Integer id) {
+
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
+        }
+
+        if (!"ADMIN".equals(actor.getRole())
+                && !"CAMPAIGN_OWNER".equals(actor.getRole())) {
+            throw new AccessDeniedException(
+                    "Only admins and campaign owners can delete staff"
+            );
+        }
 
         AuthorizedStaff staff = authorizedStaffRepository.findById(id)
                 .orElseThrow(() -> new ApiException("staff not found"));
 
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())
+                && (staff.getCampaign() == null
+                || staff.getCampaign().getUser() == null
+                || !actor.getId().equals(
+                staff.getCampaign().getUser().getId()))) {
+            throw new AccessDeniedException(
+                    "You can only delete staff in your own campaign"
+            );
+        }
+
+        User user = staff.getUser();
+
         authorizedStaffRepository.delete(staff);
-        authRepository.delete(staff.getUser());
+        authRepository.delete(user);
     }
     public List<AuthorizedStaff> getEmployees(Integer id) {
         AuthorizedStaff authorizedStaff =
@@ -127,76 +254,179 @@ public class AuthorizedStaffService {
     }
 
 
-    public void addEmployee(Integer supervisorId, AuthorizedStaffDTO dto) {
+    @Transactional
+    public void addEmployee(User actor, AuthorizedStaffDTO dto) {
 
-        AuthorizedStaff supervisor =
-                authorizedStaffRepository.findAuthorizedStaffById(supervisorId);
-
-        if (supervisor == null) {
-            throw new ApiException("supervisor not found");
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
         }
 
-        if (supervisor.getStaffRole() != AuthorizedStaffRole.SUPERVISOR) {
-            throw new ApiException("you are not authorized");
-        }
+        Campaign campaign;
+        AuthorizedStaff supervisor = null;
 
-        Campaign campaign = supervisor.getCampaign();
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())) {
 
-        if (campaign == null) {
-            throw new ApiException("supervisor has no campaign");
+            campaign = campaignRepository.findCampaignById(actor.getId());
+
+            if (campaign == null
+                    || campaign.getUser() == null
+                    || !actor.getId().equals(campaign.getUser().getId())) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+            if (dto.getSupervisorId() == null) {
+                throw new ApiException("Supervisor is required when adding an employee");
+            }
+            supervisor = authorizedStaffRepository
+                    .findAuthorizedStaffById(dto.getSupervisorId());
+            if (supervisor == null
+                    || supervisor.getStaffRole() != AuthorizedStaffRole.SUPERVISOR
+                    || supervisor.getCampaign() == null
+                    || !campaign.getId().equals(supervisor.getCampaign().getId())
+                    || supervisor.getUser() == null
+                    || !supervisor.getUser().isActive()) {
+                throw new AccessDeniedException(
+                        "Select an active supervisor from your campaign"
+                );
+            }
+
+        } else if ("AuthorizedStaff".equals(actor.getRole())) {
+
+            supervisor = authorizedStaffRepository
+                    .findAuthorizedStaffById(actor.getId());
+
+            if (supervisor == null
+                    || supervisor.getStaffRole()
+                    != AuthorizedStaffRole.SUPERVISOR) {
+                throw new AccessDeniedException(
+                        "Only supervisors can add employees"
+                );
+            }
+
+            if (dto.getSupervisorId() != null
+                    && !actor.getId().equals(dto.getSupervisorId())) {
+                throw new AccessDeniedException(
+                        "Supervisors can only add employees to their own team"
+                );
+            }
+
+            campaign = supervisor.getCampaign();
+
+            if (campaign == null) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+        } else {
+            throw new AccessDeniedException(
+                    "Only campaign owners and supervisors can add employees"
+            );
         }
 
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(
+                new BCryptPasswordEncoder().encode(dto.getPassword())
+        );
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setRole("AuthorizedStaff");
         user.setActive(dto.isActive());
 
+        User savedUser = authRepository.save(user);
+
         AuthorizedStaff employee = new AuthorizedStaff();
         employee.setStaffRole(AuthorizedStaffRole.REGULAR_EMPLOYEE);
         employee.setCampaign(campaign);
+        employee.setSupervisor(supervisor);
+        employee.setUser(savedUser);
 
-        authRepository.save(user);
-        employee.setUser(user);
         authorizedStaffRepository.save(employee);
     }
 
 
+    @Transactional
     public void updateEmployee(
-            Integer supervisorId,
+            User actor,
             Integer employeeId,
             EmployeeUpdateDTO dto) {
 
-        AuthorizedStaff supervisor =
-                authorizedStaffRepository.findAuthorizedStaffById(supervisorId);
-
-        if (supervisor == null) {
-            throw new ApiException("supervisor not found");
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
         }
 
-        if (supervisor.getStaffRole() != AuthorizedStaffRole.SUPERVISOR) {
-            throw new ApiException("you are not authorized");
+        Campaign campaign;
+
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())) {
+
+            campaign = campaignRepository.findCampaignById(actor.getId());
+
+            if (campaign == null
+                    || campaign.getUser() == null
+                    || !actor.getId().equals(campaign.getUser().getId())) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+        } else if ("AuthorizedStaff".equals(actor.getRole())) {
+
+            AuthorizedStaff supervisor = authorizedStaffRepository
+                    .findAuthorizedStaffById(actor.getId());
+
+            if (supervisor == null
+                    || supervisor.getStaffRole()
+                    != AuthorizedStaffRole.SUPERVISOR) {
+                throw new AccessDeniedException(
+                        "Only supervisors can update employees"
+                );
+            }
+
+            campaign = supervisor.getCampaign();
+
+            if (campaign == null) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+        } else {
+            throw new AccessDeniedException(
+                    "Only campaign owners and supervisors can update employees"
+            );
         }
 
-        AuthorizedStaff employee =
-                authorizedStaffRepository.findAuthorizedStaffById(employeeId);
+        AuthorizedStaff employee = authorizedStaffRepository
+                .findAuthorizedStaffById(employeeId);
 
         if (employee == null) {
             throw new ApiException("employee not found");
         }
 
-        if (employee.getStaffRole() != AuthorizedStaffRole.REGULAR_EMPLOYEE) {
-            throw new ApiException("this user is not a regular employee");
+        if (employee.getStaffRole()
+                != AuthorizedStaffRole.REGULAR_EMPLOYEE) {
+            throw new ApiException(
+                    "This user is not a regular employee"
+            );
         }
 
-        if (supervisor.getCampaign() == null ||
-                employee.getCampaign() == null ||
-                !supervisor.getCampaign().getId()
-                        .equals(employee.getCampaign().getId())) {
-
-            throw new ApiException("employee does not belong to your campaign");
+        if (employee.getCampaign() == null
+                || !campaign.getId().equals(
+                employee.getCampaign().getId())) {
+            throw new AccessDeniedException(
+                    "Employee does not belong to your campaign"
+            );
         }
 
         User user = employee.getUser();
@@ -209,45 +439,93 @@ public class AuthorizedStaffService {
         authRepository.save(user);
     }
 
-    public void deleteEmployee(Integer supervisorId, Integer employeeId) {
+    @Transactional
+    public void deleteEmployee(
+            User actor,
+            Integer employeeId) {
 
-        AuthorizedStaff supervisor =
-                authorizedStaffRepository.findAuthorizedStaffById(supervisorId);
-
-        if (supervisor == null) {
-            throw new ApiException("supervisor not found");
+        if (actor == null
+                || actor.getId() == null
+                || !actor.isActive()) {
+            throw new AccessDeniedException(
+                    "An active authenticated account is required"
+            );
         }
 
-        if (supervisor.getStaffRole() != AuthorizedStaffRole.SUPERVISOR) {
-            throw new ApiException("you are not authorized");
+        Campaign campaign;
+
+        if ("CAMPAIGN_OWNER".equals(actor.getRole())) {
+
+            campaign = campaignRepository.findCampaignById(actor.getId());
+
+            if (campaign == null
+                    || campaign.getUser() == null
+                    || !actor.getId().equals(campaign.getUser().getId())) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+        } else if ("AuthorizedStaff".equals(actor.getRole())) {
+
+            AuthorizedStaff supervisor = authorizedStaffRepository
+                    .findAuthorizedStaffById(actor.getId());
+
+            if (supervisor == null
+                    || supervisor.getStaffRole()
+                    != AuthorizedStaffRole.SUPERVISOR) {
+                throw new AccessDeniedException(
+                        "Only supervisors can delete employees"
+                );
+            }
+
+            campaign = supervisor.getCampaign();
+
+            if (campaign == null) {
+                throw new AccessDeniedException(
+                        "You are not linked to a campaign"
+                );
+            }
+
+        } else {
+            throw new AccessDeniedException(
+                    "Only campaign owners and supervisors can delete employees"
+            );
         }
 
-        AuthorizedStaff employee =
-                authorizedStaffRepository.findAuthorizedStaffById(employeeId);
+        AuthorizedStaff employee = authorizedStaffRepository
+                .findAuthorizedStaffById(employeeId);
 
         if (employee == null) {
             throw new ApiException("employee not found");
         }
 
-        if (employee.getStaffRole() != AuthorizedStaffRole.REGULAR_EMPLOYEE) {
-            throw new ApiException("this user is not a regular employee");
+        if (employee.getStaffRole()
+                != AuthorizedStaffRole.REGULAR_EMPLOYEE) {
+            throw new ApiException(
+                    "This user is not a regular employee"
+            );
         }
 
-        if (supervisor.getCampaign() == null ||
-                employee.getCampaign() == null ||
-                !supervisor.getCampaign().getId()
-                        .equals(employee.getCampaign().getId())) {
-
-            throw new ApiException("employee does not belong to your campaign");
+        if (employee.getCampaign() == null
+                || !campaign.getId().equals(
+                employee.getCampaign().getId())) {
+            throw new AccessDeniedException(
+                    "Employee does not belong to your campaign"
+            );
         }
 
-        deleteStaff(employeeId);
+        User user = employee.getUser();
+
+        authorizedStaffRepository.delete(employee);
+        authRepository.delete(user);
     }
 
 
 
 
     // قبول حاج ضائع
+    @Transactional
     public void acceptPilgrim(Integer staffId, Integer pilgrimId, long reportId) {
 
     AuthorizedStaff staff = authorizedStaffRepository.findAuthorizedStaffById(staffId);
@@ -255,6 +533,10 @@ public class AuthorizedStaffService {
         if (staff == null) {
         throw new ApiException("Authorized staff not found");
     }
+
+        if(!staff.getUser().isActive()){
+            throw new ApiException("the authorized staff not active");
+        }
 
     AssistanceReport report = assistanceReportRepository.findAssistanceReportByReportId(reportId);
         if (report == null) {
@@ -272,10 +554,22 @@ public class AuthorizedStaffService {
                 "This report is no longer available for acceptance"
         );
     }
-        report.setStatus(ReportStatus.ASSIGNED);
-        report.setAuthorizedStaff(staff);
 
-        assistanceReportRepository.save(report);
+        if (staff.getCampaign() == null ||
+                report.getCampaign() == null ||
+                !staff.getCampaign().getId()
+                        .equals(report.getCampaign().getId())) {
+
+            throw new ApiException(
+                    "This report does not belong to your campaign"
+            );
+        }
+
+        if (report.getAuthorizedStaff() != null) {
+            throw new ApiException("This report is already assigned");
+        }
+        report.setAuthorizedStaff(staff);
+        updateReportStatus(report, ReportStatus.ASSIGNED);
         notificationService.notifyReportAssigned(
                 report,
                 staff.getUser().getPhoneNumber()
@@ -315,6 +609,7 @@ public class AuthorizedStaffService {
 
 
 
+    @Transactional
     public void advanceReportStatus(Integer staffId, long reportId) {
 
         AuthorizedStaff staff = authorizedStaffRepository.findAuthorizedStaffById(staffId);

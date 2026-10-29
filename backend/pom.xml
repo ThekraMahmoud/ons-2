@@ -10,6 +10,7 @@
     </parent>
     <groupId>org.example</groupId>
     <artifactId>ONS</artifactId>
+
     <version>0.0.1-SNAPSHOT</version>
     <name>ONS</name>
     <description>ONS</description>
@@ -67,11 +68,18 @@
             <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+    
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>

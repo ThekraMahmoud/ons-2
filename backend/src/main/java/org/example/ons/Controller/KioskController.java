@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.example.ons.Api.ApiResponse;
 import org.example.ons.DTO.KioskActivityDTO;
+import org.example.ons.DTO.KioskReportDTO;
 import org.example.ons.Model.Kiosk;
 import org.example.ons.Service.KioskService;
 import org.springframework.http.ResponseEntity;
@@ -90,4 +91,13 @@ public class KioskController {
         return ResponseEntity.ok(kioskService.getAllActivityDto());
     }
 
+    @GetMapping("/report/{adminId}")
+    public ResponseEntity<?> getKioskReport(@PathVariable Integer adminId) {
+        KioskReportDTO report = kioskService.getKioskReport(adminId);
+        return ResponseEntity.status(200).body("send successfully");
+    }
 }
+
+
+
+

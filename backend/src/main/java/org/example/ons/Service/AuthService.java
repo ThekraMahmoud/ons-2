@@ -5,6 +5,7 @@ import org.example.ons.Api.ApiException;
 import org.example.ons.DTO.ChangePasswordDTO;
 import org.example.ons.Model.User;
 import org.example.ons.Repository.AuthRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,23 +52,30 @@ public class AuthService {
         authRepository.save(user);
     }
 
-    public void changePassword(Integer user_id, ChangePasswordDTO changePasswordDTO){
-        User user = authRepository.findUserById(user_id);
-        if(user==null){
-            throw new ApiException("user not found");
+    public void changePassword(
+            Integer userId,
+            ChangePasswordDTO dto) {
+
+        User user = authRepository.findUserById(userId);
+
+        if (user == null) {
+            throw new ApiException("User not found");
         }
 
-        if(!user.getPassword().equals(changePasswordDTO.getPassword())){
-            throw new ApiException("wrong password");
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new ApiException("Wrong current password");
         }
 
-
-        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getPassword())) {
-            throw new ApiException("New password must be different from the current password");
+        if (encoder.matches(dto.getNewPassword(), user.getPassword())) {
+            throw new ApiException(
+                    "New password must be different from the current password"
+            );
         }
 
-        user.setPassword(changePasswordDTO.getNewPassword());
+        user.setPassword(encoder.encode(dto.getNewPassword()));
+
         authRepository.save(user);
     }
-
 }

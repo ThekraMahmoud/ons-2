@@ -1,4 +1,4 @@
-        package org.example.ons.Model;
+package org.example.ons.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -35,6 +35,18 @@ public class Accommodation {
     )
     @Column(nullable = false, length = 20)
     private String city;
+
+    @NotBlank(message = "Accommodation status is required")
+    @Pattern(
+            regexp = "ACTIVE|INACTIVE",
+            message = "Status must be ACTIVE or INACTIVE"
+    )
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    private Double latitude;
+
+    private Double longitude;
 
     @ManyToOne
     @JoinColumn
