@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm 
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN python -c 'import easyocr; easyocr.Reader(["ar", "en"], gpu=False, verbose=False)'
 COPY main.py ocr_service.py qr_reader.py ./
 ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 EXPOSE 8000

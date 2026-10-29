@@ -1,4 +1,4 @@
-﻿import io
+import io
 from functools import lru_cache
 
 import easyocr
@@ -7,7 +7,7 @@ from PIL import Image
 
 @lru_cache(maxsize=1)
 def get_reader():
-    return easyocr.Reader(["ar", "en"], gpu=False)
+    return easyocr.Reader(["ar", "en"], gpu=False, verbose=False)
 
 def read_text(image_bytes: bytes) -> dict:
     try:
